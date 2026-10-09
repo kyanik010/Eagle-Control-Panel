@@ -9,9 +9,25 @@
 html[dir="ltr"] body{text-align:left}html[dir="ltr"] aside{border-left:0;border-right:1px solid var(--line)}html[dir="ltr"] .nav,html[dir="ltr"] th,html[dir="ltr"] td,html[dir="ltr"] .quick{text-align:left}html[dir="ltr"] .nav{flex-direction:row}html[dir="ltr"] .brand{text-align:center}
 @media(max-width:1000px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:720px){.layout{display:block}aside{position:fixed;z-index:20;top:0;right:0;width:260px;transform:translateX(105%);transition:transform .2s;box-shadow:0 0 40px #0009}.layout.menu-open aside{transform:translateX(0)}html[dir="ltr"] aside{right:auto;left:0;transform:translateX(-105%)}html[dir="ltr"] .layout.menu-open aside{transform:translateX(0)}main{padding:15px 11px 35px}.mobile-menu{display:inline-grid;place-items:center;width:39px;height:39px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px}.topbar{align-items:flex-start}.top-actions{flex-direction:column;align-items:flex-end}.admin-chip{display:none}.grid2{grid-template-columns:1fr}.panel{padding:13px}.stats{gap:8px}.stat{padding:12px}.stat-value{font-size:23px}.quick-grid{grid-template-columns:1fr 1fr}.panel-head{align-items:flex-start}.notice{font-size:11px}}
+
+.auth-gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(3,7,14,.96);backdrop-filter:blur(14px)}
+.auth-card{width:min(430px,100%);padding:26px;border:1px solid #203d53;border-radius:20px;background:linear-gradient(145deg,#101c2c,#070b14);box-shadow:0 25px 90px #0008}
+.auth-card h2{margin:0 0 8px;font-size:24px}.auth-card p{color:#9eafc3;font-size:13px;margin:0 0 18px}.auth-card .field{margin-bottom:13px}.auth-error{display:none;color:#ff9aa9;background:#381721;border:1px solid #71303d;padding:10px;border-radius:10px;margin:10px 0;font-size:12px}.auth-logo{width:52px;height:52px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(145deg,#00d9ff,#007f9e);color:#041018;font-size:27px;font-weight:950;margin-bottom:15px}.logout-btn{border:1px solid #26384e;background:#111d2d;color:#dce7f2;border-radius:10px;padding:8px 11px}
 </style>
 </head>
 <body>
+<div class="auth-gate" id="authGate">
+  <form class="auth-card" id="loginForm">
+    <div class="auth-logo">E</div>
+    <h2>EAGLE X CONTROL</h2>
+    <p>تسجيل دخول المسؤول للوصول إلى بيانات الأجهزة والتفعيلات.</p>
+    <div class="field"><label for="loginEmail">البريد الإلكتروني</label><input id="loginEmail" type="email" required autocomplete="username" value="Goldiptv71@gmail.com" dir="ltr"></div>
+    <div class="field"><label for="loginPassword">كلمة المرور</label><input id="loginPassword" type="password" required autocomplete="current-password" dir="ltr"></div>
+    <div class="auth-error" id="authError"></div>
+    <button class="btn" type="submit" id="loginBtn" style="width:100%">تسجيل الدخول</button>
+    <p style="margin:14px 0 0;font-size:11px">يجب إنشاء حساب هذا البريد في Supabase Auth أولًا. لا تستخدم كلمة مرور لوحة قديمة.</p>
+  </form>
+</div>
 <div class="layout" id="layout">
 <aside>
   <div class="brand"><div class="brand-logo">E</div><b>EAGLE X CONTROL</b><small>DEVICE & SUBSCRIPTION MANAGEMENT</small></div>
@@ -28,8 +44,8 @@ html[dir="ltr"] body{text-align:left}html[dir="ltr"] aside{border-left:0;border-
   <div class="aside-note"><b data-en="Prototype mode">وضع تجريبي</b><span data-en="Records are stored in this browser only. Real app activation requires a secure backend.">السجلات محفوظة في هذا المتصفح فقط. تفعيل التطبيق الحقيقي يحتاج إلى خادم آمن.</span></div>
 </aside>
 <main>
-<header class="topbar"><div class="top-left"><button class="mobile-menu" id="menuBtn">☰</button><div><div class="eyebrow">EAGLE X CONTROL PANEL</div><h1 id="pageTitle">نظرة عامة</h1><p class="subtitle" id="pageSubtitle">إدارة الأجهزة والاشتراكات ومصادر IPTV من مكان واحد.</p></div></div><div class="top-actions"><button class="btn secondary" id="langBtn">English</button><span class="admin-chip" data-en="Administrator · Local preview">المسؤول · معاينة محلية</span></div></header>
-<div class="notice"><b data-en="Important:">تنبيه مهم:</b> <span data-en="This is a front-end prototype. Changes are saved locally in this browser and DO NOT activate or block the Eagle X app yet. A secure API/database must be connected for real activation.">هذه واجهة أولية. التغييرات تُحفظ محليًا في هذا المتصفح ولا تُفعّل تطبيق Eagle X أو توقفه حتى الآن. يلزم ربط قاعدة بيانات وواجهة API آمنة للتفعيل الفعلي.</span></div>
+<header class="topbar"><div class="top-left"><button class="mobile-menu" id="menuBtn">☰</button><div><div class="eyebrow">EAGLE X CONTROL PANEL</div><h1 id="pageTitle">نظرة عامة</h1><p class="subtitle" id="pageSubtitle">إدارة الأجهزة والاشتراكات ومصادر IPTV من مكان واحد.</p></div></div><div class="top-actions"><button class="btn secondary" id="langBtn">English</button><span class="admin-chip" id="adminEmail">المسؤول</span><button class="logout-btn" id="logoutBtn" style="display:none">تسجيل الخروج</button></div></header>
+<div class="notice"><b>حالة الربط:</b> تسجيل الدخول وقائمة الأجهزة متصلان بقاعدة بيانات Eagle X Control. مصادر IPTV والصوت الخارجي تحتاج استكمال الربط قبل استخدامها لبيانات العملاء الفعلية.</div>
 <section class="section active" id="section-overview">
 <div class="stats">
 <div class="stat"><div class="stat-head"><span data-en="Registered devices">الأجهزة المسجلة</span><span class="stat-icon">▣</span></div><div class="stat-value" id="statTotal">0</div><div class="stat-foot" data-en="Saved in this browser">محفوظة في هذا المتصفح</div></div>
@@ -77,6 +93,7 @@ html[dir="ltr"] body{text-align:left}html[dir="ltr"] aside{border-left:0;border-
 <section class="section" id="section-sync"><div class="panel"><div class="panel-head"><div><h2 data-en="Synchronization logs">سجلات المزامنة</h2><p data-en="Real sync requires an API/backend service.">المزامنة الفعلية تتطلب خدمة API وخادمًا.</p></div><span class="badge expired" data-en="Not connected">غير متصل</span></div><div class="empty"><strong data-en="No sync service connected">لا توجد خدمة مزامنة متصلة</strong><span data-en="No channel/catalog sync has been performed by this dashboard.">لم تنفذ هذه اللوحة مزامنة للقنوات أو الكتالوج.</span></div></div></section>
 <section class="section" id="section-settings"><div class="panel"><div class="panel-head"><div><h2 data-en="Panel settings">إعدادات اللوحة</h2><p data-en="Local browser data and prototype controls.">بيانات المتصفح المحلي وأدوات النموذج الأولي.</p></div></div><div class="notice" data-en="Do not enter real customer passwords or production credentials here. Browser localStorage is not a secure database.">لا تدخل كلمات مرور العملاء الحقيقية أو بيانات إنتاج هنا. تخزين المتصفح المحلي ليس قاعدة بيانات آمنة.</div><div class="actions"><button class="btn secondary" id="exportBtn" data-en="Export local records (JSON)">تصدير السجلات المحلية (JSON)</button><button class="btn danger" id="clearAllBtn" data-en="Delete all local records">حذف جميع السجلات المحلية</button></div><p class="section-note" style="margin-top:12px" data-en="A production release needs admin authentication, database rules, encrypted secrets, and a server-side activation endpoint.">نسخة الإنتاج تحتاج إلى تسجيل دخول للمسؤول، وقواعد قاعدة بيانات، وحماية الأسرار، ونقطة تفعيل على الخادم.</p></div></section>
 </main></div><div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const $=id=>document.getElementById(id);
 const DBKEY="eagle-control-prototype-records-v2";
@@ -138,6 +155,92 @@ function setLang(next){lang=next;document.documentElement.lang=lang;document.doc
 $("langBtn").addEventListener("click",()=>setLang(lang==="ar"?"en":"ar"));
 $("exportBtn").addEventListener("click",()=>{const blob=new Blob([JSON.stringify({records,audio},null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="eagle-control-local-records.json";a.click();URL.revokeObjectURL(url)});
 $("clearAllBtn").addEventListener("click",()=>{if(!confirm(tr("سيتم حذف جميع سجلات النموذج من هذا المتصفح. هل تريد المتابعة؟","Delete all prototype records from this browser?")))return;records=[];audio={};save();render();toast(tr("تم حذف السجلات المحلية.","Local records deleted."))});
-load();clearForm();render();setLang("ar");
+
+const SUPABASE_URL="https://gyadzfbfxayifwrpevuq.supabase.co";
+const SUPABASE_KEY="sb_publishable_sOK57WGfBcTE75ArdZSmiQ_htG1tn-H";
+const supa=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let activeSession=null;
+function apiHeaders(){return {"apikey":SUPABASE_KEY,"Authorization":"Bearer "+activeSession.access_token,"Content-Type":"application/json"}}
+async function api(path,method="GET",body=null){
+ const res=await fetch(SUPABASE_URL+"/functions/v1/admin-api/"+path,{method,headers:apiHeaders(),...(body?{body:JSON.stringify(body)}:{})});
+ let data={};try{data=await res.json()}catch{}
+ if(!res.ok)throw new Error(data.error||("HTTP "+res.status));
+ return data;
+}
+function mapRemoteDevice(d){
+ const status=({pending:"trial",active:"active",suspended:"suspended",revoked:"suspended",expired:"expired"})[d.status]||"trial";
+ const expiry=d.expires_at?String(d.expires_at).slice(0,10):"";
+ return {id:d.id,customer:d.device_name||"",deviceKey:d.device_identifier,deviceId:d.device_identifier,mac:d.device_identifier.includes(":")?d.device_identifier:"",activationCode:"",status,expiry,host:"",sourceType:"xtream",username:"",password:"",videoM3u:"",notes:d.notes||"",createdAt:d.created_at,subscriptionId:d.subscription_id};
+}
+async function refreshRemote(){
+ const result=await api("devices");
+ records=(result.data||[]).map(mapRemoteDevice);
+ render();
+}
+function remoteStatus(s){return ({trial:"pending",active:"active",expired:"expired",suspended:"suspended"})[s]||"pending"}
+function showAuthError(message){$("authError").textContent=message;$("authError").style.display="block"}
+async function enterDashboard(session){
+ activeSession=session;
+ $("authGate").style.display="none";
+ $("logoutBtn").style.display="inline-block";
+ $("adminEmail").textContent=session.user.email||"Administrator";
+ try{await refreshRemote();toast("تم الاتصال بقاعدة البيانات بنجاح.");}
+ catch(e){$("authGate").style.display="flex";showAuthError("تعذر تحميل البيانات: "+e.message);activeSession=null;}
+}
+$("loginForm").addEventListener("submit",async e=>{
+ e.preventDefault();$("authError").style.display="none";$("loginBtn").disabled=true;$("loginBtn").textContent="جارٍ تسجيل الدخول…";
+ try{
+  const {data,error}=await supa.auth.signInWithPassword({email:$("loginEmail").value.trim(),password:$("loginPassword").value});
+  if(error)throw error;
+  await enterDashboard(data.session);
+ }catch(err){showAuthError(err.message==="Invalid login credentials"?"بيانات الدخول غير صحيحة أو الحساب لم يُنشأ بعد.":err.message||"فشل تسجيل الدخول.");}
+ finally{$("loginBtn").disabled=false;$("loginBtn").textContent="تسجيل الدخول";}
+});
+$("logoutBtn").addEventListener("click",async()=>{await supa.auth.signOut();activeSession=null;$("authGate").style.display="flex";$("logoutBtn").style.display="none";records=[];render()});
+supa.auth.getSession().then(({data})=>{if(data.session)enterDashboard(data.session)});
+$("deviceForm").addEventListener("submit",async e=>{
+ e.preventDefault();e.stopImmediatePropagation();
+ if(!activeSession){toast("سجّل الدخول أولًا.");return}
+ const key=$("deviceKey").value.trim().toUpperCase();if(!key){toast("أدخل MAC أو Device ID.");return}
+ const editId=$("editId").value;const old=records.find(r=>r.id===editId);
+ const code=$("activationCode").value.trim().toUpperCase()||("EX-"+crypto.randomUUID().replace(/-/g,"").slice(0,10).toUpperCase());
+ const expiry=$("expiry").value||null;
+ const payload={device_identifier:key,device_name:$("customer").value.trim(),status:remoteStatus($("deviceStatus").value),expires_at:expiry?new Date(expiry+"T23:59:59Z").toISOString():null,notes:$("notes").value.trim()};
+ try{
+  $("saveDeviceBtn").disabled=true;
+  let result;
+  if(editId)result=await api("devices/"+encodeURIComponent(editId),"PATCH",{...payload,activation_code:$("activationCode").value.trim()||undefined});
+  else result=await api("devices","POST",{...payload,activation_code:code});
+  await refreshRemote();
+  const saved=result.data;
+  const target=records.find(r=>r.id===(saved&&saved.id||editId));
+  if(target&&code)target.activationCode=code;
+  render();clearForm();
+  toast(editId?"تم تحديث الجهاز في قاعدة البيانات.":"تم إنشاء الجهاز. كود التفعيل (احتفظ به): "+code);
+ }catch(err){toast("فشل الحفظ: "+err.message)}
+ finally{$("saveDeviceBtn").disabled=false}
+},true);
+async function renewRecord(id){
+ const r=records.find(x=>x.id===id);if(!r)return;
+ const base=r.expiry&&dateDays(r.expiry)>=0?new Date(r.expiry+"T12:00:00"):new Date();base.setDate(base.getDate()+30);
+ try{await api("devices/"+encodeURIComponent(id),"PATCH",{expires_at:base.toISOString()});await refreshRemote();toast("تم التجديد في قاعدة البيانات.");}catch(e){toast("فشل التجديد: "+e.message)}
+}
+async function toggleSuspend(id){
+ const r=records.find(x=>x.id===id);if(!r)return;
+ try{await api("devices/"+encodeURIComponent(id),"PATCH",{status:r.status==="suspended"?"active":"suspended"});await refreshRemote();toast("تم تحديث حالة الجهاز.");}catch(e){toast("فشل تحديث الحالة: "+e.message)}
+}
+async function deleteRecord(id){
+ if(!confirm(tr("هل تريد حذف هذا الجهاز من قاعدة البيانات؟","Delete this device from the database?")))return;
+ try{await api("devices/"+encodeURIComponent(id),"DELETE");await refreshRemote();toast("تم حذف الجهاز.");}catch(e){toast("فشل الحذف: "+e.message)}
+}
+async function editRecord(id){
+ const r=records.find(x=>x.id===id);if(!r)return;showSection("devices");$("editId").value=r.id;
+ $("customer").value=r.customer||"";$("deviceKey").value=r.deviceKey||"";$("activationCode").value="";
+ $("deviceStatus").value=r.status||"active";$("expiry").value=r.expiry||"";$("mac").value=r.mac||"";$("deviceId").value=r.deviceId||"";
+ $("notes").value=r.notes||"";$("saveDeviceBtn").textContent=tr("حفظ التعديلات","Save changes");window.scrollTo({top:0,behavior:"smooth"});
+}
+async function initPanel(){clearForm();render();setLang("ar");}
+initPanel();
+
 </script>
 </body></html>
