@@ -122,7 +122,7 @@ document.getElementById("langBtn").addEventListener("click", () => {
   language = language === "ar" ? "en" : "ar";
   translatePage();
 });
-try { if (localStorage.getItem("eagle-control-language") === "en") language = "en"; } catch (e) {}
+// Always start in Arabic; the language toggle applies to the current session.
 translatePage();
 </script>
 </body>
