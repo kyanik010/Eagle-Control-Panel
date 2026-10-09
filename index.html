@@ -164,7 +164,19 @@ function apiHeaders(){return {"apikey":SUPABASE_KEY,"Authorization":"Bearer "+ac
 async function api(path,method="GET",body=null){
  const res=await fetch(SUPABASE_URL+"/functions/v1/admin-api/"+path,{method,headers:apiHeaders(),...(body?{body:JSON.stringify(body)}:{})});
  let data={};try{data=await res.json()}catch{}
- if(!res.ok)throw new Error(data.error||("HTTP "+res.status));
+ if(!res.ok){
+  const code=data.reason||data.error||("HTTP "+res.status);
+  const messages={
+   incomplete_xtream_source:"لإضافة Xtream، أدخل رابط السيرفر واسم المستخدم وكلمة المرور كاملة.",
+   incomplete_m3u_source:"اختر M3U وأدخل رابط M3U للفيديو.",
+   invalid_source_type:"نوع مصدر IPTV غير صحيح. اختر Xtream أو M3U.",
+   source_lookup_failed:"تعذر قراءة مصدر IPTV الحالي. أعد تحميل اللوحة وحاول مجددًا.",
+   source_save_failed:"وصلت بيانات IPTV لكن قاعدة البيانات رفضت حفظها. راجع الحقول وحاول مجددًا.",
+   source_delete_failed:"تعذر تحديث مصدر IPTV القديم.",
+   iptv_source_invalid_or_save_failed:"تعذر حفظ مصدر IPTV. تحقق من نوع الاتصال والحقول المطلوبة."
+  };
+  throw new Error(messages[code]||data.error||("HTTP "+res.status));
+ }
  return data;
 }
 function mapRemoteDevice(d){
@@ -206,7 +218,12 @@ $("deviceForm").addEventListener("submit",async e=>{
  const editId=$("editId").value;const old=records.find(r=>r.id===editId);
  const code=$("activationCode").value.trim().toUpperCase()||("EX-"+crypto.randomUUID().replace(/-/g,"").slice(0,10).toUpperCase());
  const expiry=$("expiry").value||null;
- const payload={device_identifier:key,device_name:$("customer").value.trim(),status:remoteStatus($("deviceStatus").value),expires_at:expiry?new Date(expiry+"T23:59:59Z").toISOString():null,notes:$("notes").value.trim(),iptv_source:{source_type:$("sourceType").value,host_url:$("host").value.trim(),username:$("username").value.trim(),password:$("password").value,m3u_url:$("videoM3u").value.trim()}};
+ const sourceType=$("sourceType").value;
+ const host=$("host").value.trim(),username=$("username").value.trim(),password=$("password").value,m3uUrl=$("videoM3u").value.trim();
+ const anySource=!!(host||username||password||m3uUrl);
+ if(anySource&&sourceType==="xtream"&&(!host||!username||!password)){toast("لإضافة Xtream، أكمل رابط السيرفر واسم المستخدم وكلمة المرور. إذا كنت تستخدم M3U فغيّر نوع الاتصال إلى M3U.");return}
+ if(anySource&&sourceType==="m3u"&&!m3uUrl){toast("أدخل رابط M3U للفيديو أو امسح حقول Xtream إذا لم تكن تستخدمها.");return}
+ const payload={device_identifier:key,device_name:$("customer").value.trim(),status:remoteStatus($("deviceStatus").value),expires_at:expiry?new Date(expiry+"T23:59:59Z").toISOString():null,notes:$("notes").value.trim(),iptv_source:{source_type:sourceType,host_url:host,username,password,m3u_url:m3uUrl}};
  try{
   $("saveDeviceBtn").disabled=true;
   let result;
