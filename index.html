@@ -45,7 +45,7 @@ html[dir="ltr"] body{text-align:left}html[dir="ltr"] aside{border-left:0;border-
 </aside>
 <main>
 <header class="topbar"><div class="top-left"><button class="mobile-menu" id="menuBtn">☰</button><div><div class="eyebrow">EAGLE X CONTROL PANEL</div><h1 id="pageTitle">نظرة عامة</h1><p class="subtitle" id="pageSubtitle">إدارة الأجهزة والاشتراكات ومصادر IPTV من مكان واحد.</p></div></div><div class="top-actions"><button class="btn secondary" id="langBtn">English</button><span class="admin-chip" id="adminEmail">المسؤول</span><button class="logout-btn" id="logoutBtn" style="display:none">تسجيل الخروج</button></div></header>
-<div class="notice"><b>حالة الربط:</b> تسجيل الدخول وقائمة الأجهزة متصلان بقاعدة بيانات Eagle X Control. مصادر IPTV والصوت الخارجي تحتاج استكمال الربط قبل استخدامها لبيانات العملاء الفعلية.</div>
+<div class="notice"><b>حالة الربط:</b> تسجيل الدخول والأجهزة وبيانات مصدر IPTV للفيديو متصلة بقاعدة بيانات Eagle X Control. رابط الصوت الخارجي ما زال منفصلًا.</div>
 <section class="section active" id="section-overview">
 <div class="stats">
 <div class="stat"><div class="stat-head"><span data-en="Registered devices">الأجهزة المسجلة</span><span class="stat-icon">▣</span></div><div class="stat-value" id="statTotal">0</div><div class="stat-foot" data-en="Saved in this browser">محفوظة في هذا المتصفح</div></div>
@@ -170,7 +170,8 @@ async function api(path,method="GET",body=null){
 function mapRemoteDevice(d){
  const status=({pending:"trial",active:"active",suspended:"suspended",revoked:"suspended",expired:"expired"})[d.status]||"trial";
  const expiry=d.expires_at?String(d.expires_at).slice(0,10):"";
- return {id:d.id,customer:d.device_name||"",deviceKey:d.device_identifier,deviceId:d.device_identifier,mac:d.device_identifier.includes(":")?d.device_identifier:"",activationCode:"",status,expiry,host:"",sourceType:"xtream",username:"",password:"",videoM3u:"",notes:d.notes||"",createdAt:d.created_at,subscriptionId:d.subscription_id};
+ const source=Array.isArray(d.iptv_sources)?(d.iptv_sources.find(s=>s.enabled)||d.iptv_sources[0]):null;
+ return {id:d.id,customer:d.device_name||"",deviceKey:d.device_identifier,deviceId:d.device_identifier,mac:d.device_identifier.includes(":")?d.device_identifier:"",activationCode:"",status,expiry,host:source?.host_url||"",sourceType:source?.source_type||"xtream",username:source?.username||"",password:source?.password_secret||"",videoM3u:source?.m3u_url_secret||"",notes:d.notes||"",createdAt:d.created_at,subscriptionId:d.subscription_id};
 }
 async function refreshRemote(){
  const result=await api("devices");
@@ -205,7 +206,7 @@ $("deviceForm").addEventListener("submit",async e=>{
  const editId=$("editId").value;const old=records.find(r=>r.id===editId);
  const code=$("activationCode").value.trim().toUpperCase()||("EX-"+crypto.randomUUID().replace(/-/g,"").slice(0,10).toUpperCase());
  const expiry=$("expiry").value||null;
- const payload={device_identifier:key,device_name:$("customer").value.trim(),status:remoteStatus($("deviceStatus").value),expires_at:expiry?new Date(expiry+"T23:59:59Z").toISOString():null,notes:$("notes").value.trim()};
+ const payload={device_identifier:key,device_name:$("customer").value.trim(),status:remoteStatus($("deviceStatus").value),expires_at:expiry?new Date(expiry+"T23:59:59Z").toISOString():null,notes:$("notes").value.trim(),iptv_source:{source_type:$("sourceType").value,host_url:$("host").value.trim(),username:$("username").value.trim(),password:$("password").value,m3u_url:$("videoM3u").value.trim()}};
  try{
   $("saveDeviceBtn").disabled=true;
   let result;
@@ -216,7 +217,7 @@ $("deviceForm").addEventListener("submit",async e=>{
   const target=records.find(r=>r.id===(saved&&saved.id||editId));
   if(target&&code)target.activationCode=code;
   render();clearForm();
-  toast(editId?"تم تحديث الجهاز في قاعدة البيانات.":"تم إنشاء الجهاز. كود التفعيل (احتفظ به): "+code);
+  toast(editId?"تم تحديث الجهاز وبيانات IPTV في قاعدة البيانات.":"تم حفظ الجهاز وبيانات IPTV في قاعدة البيانات.");
  }catch(err){toast("فشل الحفظ: "+err.message)}
  finally{$("saveDeviceBtn").disabled=false}
 },true);
@@ -237,6 +238,7 @@ async function editRecord(id){
  const r=records.find(x=>x.id===id);if(!r)return;showSection("devices");$("editId").value=r.id;
  $("customer").value=r.customer||"";$("deviceKey").value=r.deviceKey||"";$("activationCode").value="";
  $("deviceStatus").value=r.status||"active";$("expiry").value=r.expiry||"";$("mac").value=r.mac||"";$("deviceId").value=r.deviceId||"";
+ $("host").value=r.host||"";$("sourceType").value=r.sourceType||"xtream";$("username").value=r.username||"";$("password").value=r.password||"";$("videoM3u").value=r.videoM3u||"";
  $("notes").value=r.notes||"";$("saveDeviceBtn").textContent=tr("حفظ التعديلات","Save changes");window.scrollTo({top:0,behavior:"smooth"});
 }
 async function initPanel(){clearForm();render();setLang("ar");}
