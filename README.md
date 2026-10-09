@@ -1,25 +1,31 @@
-# Eagle Control Panel
+# Eagle X Control Panel
 
-Independent IPTV administration dashboard for managing devices, customers, subscriptions, IPTV sources, external audio M3U catalogs, and synchronization logs.
+لوحة إدارة مستقلة بتصميم Eagle X لإدارة الأجهزة والتفعيلات واشتراكات IPTV ومصدر الصوت الخارجي.
 
-## Current status
+## ما تحتويه الواجهة الآن
 
-The first commit provides a responsive frontend prototype in `index.html`. Navigation works, and the interface includes sample display data clearly marked as non-production. No real customer data is included.
+- واجهة داكنة مناسبة للجوال مع العربية افتراضيًا وزر للتبديل إلى الإنجليزية.
+- تسجيل سجل جهاز بواسطة MAC أو Device ID وكود تفعيل ومدة الاشتراك وتاريخ الانتهاء والحالة.
+- تحرير السجلات وتجديد المدة وإيقاف السجل أو إعادة تفعيله وحذفه.
+- حقول منفصلة لبيانات فيديو IPTV: Host وXtream username/password أو رابط M3U.
+- حقل منفصل اختياري لرابط External Audio M3U.
+- صفحات نظرة عامة والاشتراكات ومصادر IPTV والصوت وسجلات المزامنة والإعدادات.
+- تصدير سجلات النموذج المحلي بصيغة JSON.
 
-**Not production-ready yet:** administrator authentication, database access, server-side authorization, audit logs, and IPTV/API integrations have not been connected. Buttons and records that imply backend operations must not be treated as functional until the secure backend is implemented.
+## تنبيه مهم — ليست تفعيلات حقيقية بعد
 
-## Planned implementation
+الواجهة الحالية **نموذج أولي فقط**. السجلات تحفظ في `localStorage` داخل المتصفح الحالي، ولا تُرسل إلى خادم أو قاعدة بيانات، ولا يستطيع تطبيق Eagle X التحقق منها أو تطبيق الإيقاف/التفعيل بناءً عليها. لا تستخدم بيانات عملاء حقيقية أو كلمات مرور إنتاج في هذه النسخة.
 
-1. Confirm the interface and dashboard modules.
-2. Create a separate Supabase project and database schema.
-3. Add secure administrator authentication and role-based authorization.
-4. Implement server-side/Edge Function endpoints for device activation, subscriptions, IPTV profiles, and external audio M3U settings.
-5. Connect the frontend to those endpoints using only public client configuration; never place service-role keys or IPTV credentials in browser code.
-6. Configure GitHub Pages and verify the deployed site.
-7. Test each workflow against test data before production use.
+## المطلوب قبل الاستخدام الفعلي
 
-## Deploy the static preview
+1. إنشاء قاعدة بيانات مستقلة للمشروع مع سياسات وصول مناسبة.
+2. إضافة تسجيل دخول آمن للمسؤول وصلاحيات.
+3. تنفيذ API/Edge Functions للتحقق من كود التفعيل وربط MAC أو Device ID بالاشتراك وتاريخ الانتهاء والحالة.
+4. ربط التطبيق نفسه بنقطة التحقق الآمنة، حتى لا يكفي تعديل الواجهة لتجاوز التفعيل.
+5. حفظ بيانات IPTV والأسرار على الخادم وعدم وضع مفاتيح سرية في JavaScript أو GitHub Pages.
+6. فصل اشتراك الفيديو عن رابط الصوت الخارجي، واختبار أن فشل الصوت لا يوقف تشغيل الفيديو.
+7. اختبار التفعيل والتجديد والإيقاف والانتهاء من التطبيق الفعلي قبل إطلاق الخدمة.
 
-In GitHub, open **Settings → Pages**, select **Deploy from a branch**, choose the default branch and **/(root)**, then save. The repository must be public for standard GitHub Pages on plans that do not support Pages for private repositories.
+## النشر
 
-The static preview can be published before the backend is ready, but it must not contain secrets or real customer data.
+يمكن نشر الواجهة الثابتة من **Settings → Pages** في GitHub. نشر GitHub Pages يعرض الواجهة فقط ولا ينشئ خادم تفعيل أو قاعدة بيانات.
